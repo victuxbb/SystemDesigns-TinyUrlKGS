@@ -1,0 +1,13 @@
+dist: trusty
+
+language: java
+
+branches:
+  only:
+    - master
+
+jdk:
+  - oraclejdk8
+
+script:
+  - ./gradlew build --stacktrace

@@ -1,0 +1,46 @@
+buildscript {
+	ext {
+		dockerComposePluginVersion = '0.8.4'
+	}
+	repositories {
+		mavenCentral()
+	}
+	dependencies {
+		classpath("com.avast.gradle.docker-compose:com.avast.gradle.docker-compose.gradle.plugin:$dockerComposePluginVersion")
+	}
+}
+
+plugins {
+	id 'org.springframework.boot' version '2.1.3.RELEASE'
+	id 'java'
+}
+
+apply plugin: 'io.spring.dependency-management'
+apply plugin: 'docker-compose'
+
+group = 'com.victuxbb.systemdesigns'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '1.8'
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis-reactive'
+	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'io.projectreactor:reactor-test'
+}
+
+dockerCompose {
+	useComposeFiles = ['docker-compose.yml']
+	startedServices = ['redis']
+	waitForTcpPorts = true
+	captureContainersOutput = false
+	stopContainers = true
+	removeContainers = true
+	removeOrphans = true
+}
+
+dockerCompose.isRequiredBy(test)
