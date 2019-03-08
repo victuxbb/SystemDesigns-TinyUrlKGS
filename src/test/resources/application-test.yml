@@ -4,4 +4,4 @@ spring:
     port: 6379
 
 key:
-  length: 3
+  length: 1
