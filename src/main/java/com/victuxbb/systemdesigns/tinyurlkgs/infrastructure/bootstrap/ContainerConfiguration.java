@@ -7,8 +7,9 @@ import com.victuxbb.systemdesigns.tinyurlkgs.domain.Key;
 import com.victuxbb.systemdesigns.tinyurlkgs.domain.KeyGenerator;
 import com.victuxbb.systemdesigns.tinyurlkgs.domain.KeyRepository;
 import com.victuxbb.systemdesigns.tinyurlkgs.infrastructure.repository.RedisKeyRepository;
-import com.victuxbb.systemdesigns.tinyurlkgs.infrastructure.serializer.ObjectMapperFactory;
+import com.victuxbb.systemdesigns.tinyurlkgs.infrastructure.serializer.KeyCombinedSerializer;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.ReactiveRedisConnectionFactory;
@@ -21,12 +22,6 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 @Configuration
 public class ContainerConfiguration {
 
-
-    @Bean
-    public ObjectMapper objectMapper() {
-        return ObjectMapperFactory.build();
-    }
-
     @Bean
     public Base64Dictionary base64Dictionary() {
         return new Base64Dictionary();
@@ -35,6 +30,13 @@ public class ContainerConfiguration {
     @Bean
     public KeyGenerator keyGenerator(Base64Dictionary base64Dictionary, @Value("${key.length}") int keyLength) {
         return new KeyGenerator(base64Dictionary, keyLength);
+    }
+
+    @Bean
+    public Jackson2ObjectMapperBuilderCustomizer keySerialization() {
+      return jacksonObjectMapperBuilder -> jacksonObjectMapperBuilder
+          .serializerByType(Key.class, new KeyCombinedSerializer.KeyJsonSerializer())
+          .deserializerByType(Key.class, new KeyCombinedSerializer.KeyJsonDeserializer());
     }
 
     @Bean

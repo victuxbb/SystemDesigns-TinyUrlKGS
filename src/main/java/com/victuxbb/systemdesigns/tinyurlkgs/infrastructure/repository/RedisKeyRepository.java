@@ -10,24 +10,26 @@ import reactor.core.publisher.Mono;
 @Repository
 public class RedisKeyRepository implements KeyRepository {
 
-    private static final String UNUSED_TINYURLKEYS = "unusedurlkeys";
-    private static final String USED_TINYURLKEYS = "usedurlkeys";
+  private static final String UNUSED_TINYURLKEYS = "unusedurlkeys";
+  private static final String USED_TINYURLKEYS = "usedurlkeys";
 
-    private final ReactiveSetOperations<String, Key> setOperations;
+  private final ReactiveSetOperations<String, Key> setOperations;
 
-    public RedisKeyRepository(ReactiveSetOperations<String, Key> setOperations) {
-        this.setOperations = setOperations;
-    }
+  public RedisKeyRepository(ReactiveSetOperations<String, Key> setOperations) {
+    this.setOperations = setOperations;
+  }
 
-    @Override
-    public Mono<Long> saveUnusedKey(Key key) {
-        return setOperations.add(UNUSED_TINYURLKEYS, key);
-    }
+  @Override
+  public Mono<Long> saveUnusedKey(Key key) {
+    return setOperations.add(UNUSED_TINYURLKEYS, key);
+  }
 
-    @Override
-    public Flux<Key> getUnusedKeys(long count) {
-        return setOperations.pop(UNUSED_TINYURLKEYS, count)
-                .doOnNext(key -> setOperations.add(USED_TINYURLKEYS, key));
-    }
-
+  @Override
+  public Flux<Key> getUnusedKeys(long count) {
+    return setOperations.pop(UNUSED_TINYURLKEYS, count)
+        .flatMap(key -> setOperations.add(USED_TINYURLKEYS, key)
+            .filter(aLong -> aLong == 1)
+            .map(aLong -> key)
+        );
+  }
 }
