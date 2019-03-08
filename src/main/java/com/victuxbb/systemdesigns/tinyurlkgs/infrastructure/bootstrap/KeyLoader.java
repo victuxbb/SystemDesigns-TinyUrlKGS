@@ -6,8 +6,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.connection.ReactiveRedisConnectionFactory;
 import org.springframework.stereotype.Component;
+import reactor.core.scheduler.Schedulers;
 
 import javax.annotation.PostConstruct;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneOffset;
 
 @Component
 public class KeyLoader {
@@ -26,11 +30,19 @@ public class KeyLoader {
 
     @PostConstruct
     public void loadData() {
+        final Long[] times = new Long[2];
         factory.getReactiveConnection()
             .serverCommands()
             .flushAll()
             .flatMapMany(s -> keyGenerator.generateKeys())
-            .flatMap(keyRepository::saveUnusedKey)
-            .subscribe(it -> LOGGER.info(String.valueOf(it)));
+            .compose(keyRepository::saveUnusedKey)
+            .subscribeOn(Schedulers.parallel())
+            .doOnSubscribe(subscription -> times[0] = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC))
+            .doOnComplete(() -> times[1] = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC))
+            .subscribe(
+                it -> LOGGER.trace("Batch Processed."),
+                ex -> LOGGER.error(ex.getLocalizedMessage(), ex),
+                () -> LOGGER.info(String.format("Key reset completed in: %d seconds.", (times[1] - times[0])))
+            );
     }
 }
