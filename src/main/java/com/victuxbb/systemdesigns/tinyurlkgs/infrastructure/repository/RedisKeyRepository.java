@@ -7,7 +7,8 @@ import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-@Repository
+import java.util.concurrent.BlockingDeque;
+
 public class RedisKeyRepository implements KeyRepository {
 
   private static final String UNUSED_TINYURLKEYS = "unusedurlkeys";
