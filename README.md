@@ -27,13 +27,29 @@ In bootstrap KGS will generate all possible keys of length 3 (not six, for save 
 
 ## API
 
-You can get keys doing GET request to localhost:8080/keys endpoint
+You can get keys doing POST request to localhost:8080/keys_request endpoint with body:
 
-``` 
-GET /keys
+```
 {
-    
+	"quantity": 10
 }
+
+```
+And you will get as response:
+
+```
+[
+    "tQiR",
+    "sbGH",
+    "sUs9",
+    "s6U2",
+    "tty1",
+    "tA62",
+    "ttP6",
+    "tdoy",
+    "sygH",
+    "sSDW"
+]
 
 ```
 
