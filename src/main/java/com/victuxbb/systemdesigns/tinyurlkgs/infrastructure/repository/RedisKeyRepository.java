@@ -3,11 +3,9 @@ package com.victuxbb.systemdesigns.tinyurlkgs.infrastructure.repository;
 import com.victuxbb.systemdesigns.tinyurlkgs.domain.Key;
 import com.victuxbb.systemdesigns.tinyurlkgs.domain.KeyRepository;
 import org.springframework.data.redis.core.ReactiveSetOperations;
-import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-@Repository
 public class RedisKeyRepository implements KeyRepository {
 
   private static final String UNUSED_TINYURLKEYS = "unusedurlkeys";
@@ -22,6 +20,8 @@ public class RedisKeyRepository implements KeyRepository {
   @Override
   public Mono<Void> saveUnusedKey(Flux<Key> keys) {
     return keys.buffer(100).flatMap(keyList -> setOperations.add(UNUSED_TINYURLKEYS, keyList.toArray(new Key[0])))
+            .filter(aLong -> aLong > 0)
+            .switchIfEmpty(Mono.error(new RedisKeyRepositoryException()))
         .then();
   }
 

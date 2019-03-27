@@ -4,8 +4,11 @@ import com.victuxbb.systemdesigns.tinyurlkgs.application.KGSUseCase;
 import com.victuxbb.systemdesigns.tinyurlkgs.domain.Key;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 
@@ -17,8 +20,11 @@ public class KGSRestController {
         this.KGSUseCase = KGSUseCase;
     }
 
-    @GetMapping("/keys")
-    public Flux<Key> getKey() {
-        return KGSUseCase.getKeys();
+    @PostMapping("/keys_request")
+    public Flux<Key> keysRequest(@RequestBody KeysRequest keysRequest) {
+        return Mono.justOrEmpty(keysRequest.getQuantity())
+                .flatMapMany(KGSUseCase::getKeys);
+
     }
+
 }
