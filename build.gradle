@@ -33,6 +33,10 @@ dependencies {
 	testImplementation 'io.projectreactor:reactor-test'
 }
 
+configurations {
+	bootJar.archiveName = 'app.jar'
+}
+
 dockerCompose {
 	useComposeFiles = ['docker-compose.yml']
 	startedServices = ['redis']
