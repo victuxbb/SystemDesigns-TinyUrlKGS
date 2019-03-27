@@ -32,17 +32,17 @@ public class KeyLoader {
     public void loadData() {
         final Long[] times = new Long[2];
         factory.getReactiveConnection()
-            .serverCommands()
-            .flushAll()
-            .flatMapMany(s -> keyGenerator.generateKeys())
-            .compose(keyRepository::saveUnusedKey)
-            .subscribeOn(Schedulers.parallel())
-            .doOnSubscribe(subscription -> times[0] = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC))
-            .doOnComplete(() -> times[1] = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC))
-            .subscribe(
-                it -> LOGGER.trace("Batch Processed."),
-                ex -> LOGGER.error(ex.getLocalizedMessage(), ex),
-                () -> LOGGER.info(String.format("Key reset completed in: %d seconds.", (times[1] - times[0])))
-            );
+                .serverCommands()
+                .flushAll()
+                .flatMapMany(s -> keyGenerator.generateKeys())
+                .compose(keyRepository::saveUnusedKey)
+                .subscribeOn(Schedulers.parallel())
+                .doOnSubscribe(subscription -> times[0] = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC))
+                .doOnComplete(() -> times[1] = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC))
+                .subscribe(
+                        it -> LOGGER.trace("Batch Processed."),
+                        ex -> LOGGER.error(ex.getLocalizedMessage(), ex),
+                        () -> LOGGER.info(String.format("Key reset completed in: %d seconds.", (times[1] - times[0])))
+                );
     }
 }

@@ -20,6 +20,8 @@ public class RedisKeyRepository implements KeyRepository {
   @Override
   public Mono<Void> saveUnusedKey(Flux<Key> keys) {
     return keys.buffer(100).flatMap(keyList -> setOperations.add(UNUSED_TINYURLKEYS, keyList.toArray(new Key[0])))
+            .filter(aLong -> aLong > 0)
+            .switchIfEmpty(Mono.error(new RedisKeyRepositoryException()))
         .then();
   }
 
