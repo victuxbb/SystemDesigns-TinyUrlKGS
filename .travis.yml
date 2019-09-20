@@ -9,7 +9,7 @@ jdk:
   - oraclejdk8
 
 before_install:
-  - docker build -t cinhtau/elasticsearch .
+  - docker build -t victuxbb/tinyurlkgs .
 script:
   - ./gradlew build --stacktrace
   - docker images victuxbb/tinyurlkgs
