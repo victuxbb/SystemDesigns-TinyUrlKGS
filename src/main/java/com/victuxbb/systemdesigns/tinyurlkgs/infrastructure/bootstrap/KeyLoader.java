@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.connection.ReactiveRedisConnectionFactory;
 import org.springframework.stereotype.Component;
+import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
 import javax.annotation.PostConstruct;
@@ -34,7 +35,9 @@ public class KeyLoader {
         factory.getReactiveConnection()
                 .serverCommands()
                 .flushAll()
+                .subscribeOn(Schedulers.elastic())
                 .flatMapMany(s -> keyGenerator.generateKeys())
+                .publishOn(Schedulers.parallel())
                 .compose(keyRepository::saveUnusedKey)
                 .subscribeOn(Schedulers.parallel())
                 .doOnSubscribe(subscription -> times[0] = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC))
