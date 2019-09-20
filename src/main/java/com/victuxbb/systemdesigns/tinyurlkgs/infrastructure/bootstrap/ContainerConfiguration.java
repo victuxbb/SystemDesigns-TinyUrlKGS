@@ -28,7 +28,7 @@ public class ContainerConfiguration {
     }
 
     @Bean
-    public KeyGenerator keyGenerator(Base64Dictionary base64Dictionary, @Value("${key.length}") int keyLength) {
+    public KeyGenerator keyGenerator(Base64Dictionary base64Dictionary, @Value("${kgs.keys.length}") int keyLength) {
         return new KeyGenerator(base64Dictionary, keyLength);
     }
 

@@ -1,7 +1,10 @@
+kgs:
+  redis:
+    host: "${KGS_REDIS_HOST:localhost}"
+  keys:
+    length: "${KGS_KEYS_LENGTH:3}"
+
 spring:
   redis:
-    host: localhost
+    host: ${kgs.redis.host}
     port: 6379
-
-key:
-  length: 4
